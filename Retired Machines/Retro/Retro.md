@@ -417,7 +417,7 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----          4/8/2025   8:11 PM             32 root.txt
 
-                                                                                                   *Evil-WinRM* PS C:\Users\Administrator\Desktop> type root.txt
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> type root.txt
 40fce9c3f09024bcab29d377ee1ed071
 *Evil-WinRM* PS C:\Users\Administrator\Desktop>
 ```
