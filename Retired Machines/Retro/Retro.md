@@ -14,67 +14,68 @@ Now let's perform our nmap scan. Per my usual,
 ```
 nmap -sV -sC -Pn -T4 10.129.196.125
 ```
+```
+Host is up (0.12s latency).
+Not shown: 988 filtered tcp ports (no-response)
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        Simple DNS Plus
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2025-07-06 01:32:43Z)`
+135/tcp  open  msrpc         Microsoft Windows RPC`
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn`
+389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
+|_ssl-date: TLS randomness does not represent time`
+| ssl-cert: Subject: commonName=DC.retro.vl`
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
+| Not valid before: 2024-10-02T10:33:09`
+|_Not valid after:  2025-10-02T10:33:09`
+445/tcp  open  microsoft-ds?`
+464/tcp  open  kpasswd5?`
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0`
+636/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
+| ssl-cert: Subject: commonName=DC.retro.vl`
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
+| Not valid before: 2024-10-02T10:33:09`
+|_Not valid after:  2025-10-02T10:33:09`
+|_ssl-date: TLS randomness does not represent time`
+3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
+| ssl-cert: Subject: commonName=DC.retro.vl`
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
+| Not valid before: 2024-10-02T10:33:09`
+|_Not valid after:  2025-10-02T10:33:09`
+|_ssl-date: TLS randomness does not represent time`
+3269/tcp open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
+| ssl-cert: Subject: commonName=DC.retro.vl`
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
+| Not valid before: 2024-10-02T10:33:09`
+|_Not valid after:  2025-10-02T10:33:09`
+|_ssl-date: TLS randomness does not represent time`
+3389/tcp open  ms-wbt-server Microsoft Terminal Services`
+|_ssl-date: 2025-07-06T01:34:03+00:00; 0s from scanner time.`
+| rdp-ntlm-info:`
+|   Target_Name: RETRO`
+|   NetBIOS_Domain_Name: RETRO`
+|   NetBIOS_Computer_Name: DC`
+|   DNS_Domain_Name: retro.vl`
+|   DNS_Computer_Name: DC.retro.vl`
+|   Product_Version: 10.0.20348`
+|_  System_Time: 2025-07-06T01:33:23+00:00`
+| ssl-cert: Subject: commonName=DC.retro.vl`
+| Not valid before: 2025-04-08T01:55:44`
+|_Not valid after:  2025-10-08T01:55:44`
+Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows`
 
-`Host is up (0.12s latency).`
-`Not shown: 988 filtered tcp ports (no-response)`
-`PORT     STATE SERVICE       VERSION`
-`53/tcp   open  domain        Simple DNS Plus`
-`88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2025-07-06 01:32:43Z)`
-`135/tcp  open  msrpc         Microsoft Windows RPC`
-`139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn`
-`389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
-`|_ssl-date: TLS randomness does not represent time`
-`| ssl-cert: Subject: commonName=DC.retro.vl`
-`| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
-`| Not valid before: 2024-10-02T10:33:09`
-`|_Not valid after:  2025-10-02T10:33:09`
-`445/tcp  open  microsoft-ds?`
-`464/tcp  open  kpasswd5?`
-`593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0`
-`636/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
-`| ssl-cert: Subject: commonName=DC.retro.vl`
-`| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
-`| Not valid before: 2024-10-02T10:33:09`
-`|_Not valid after:  2025-10-02T10:33:09`
-`|_ssl-date: TLS randomness does not represent time`
-`3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
-`| ssl-cert: Subject: commonName=DC.retro.vl`
-`| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
-`| Not valid before: 2024-10-02T10:33:09`
-`|_Not valid after:  2025-10-02T10:33:09`
-`|_ssl-date: TLS randomness does not represent time`
-`3269/tcp open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: retro.vl0., Site: Default-First-Site-Name)`
-`| ssl-cert: Subject: commonName=DC.retro.vl`
-`| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<unsupported>, DNS:DC.retro.vl`
-`| Not valid before: 2024-10-02T10:33:09`
-`|_Not valid after:  2025-10-02T10:33:09`
-`|_ssl-date: TLS randomness does not represent time`
-`3389/tcp open  ms-wbt-server Microsoft Terminal Services`
-`|_ssl-date: 2025-07-06T01:34:03+00:00; 0s from scanner time.`
-`| rdp-ntlm-info:`
-`|   Target_Name: RETRO`
-`|   NetBIOS_Domain_Name: RETRO`
-`|   NetBIOS_Computer_Name: DC`
-`|   DNS_Domain_Name: retro.vl`
-`|   DNS_Computer_Name: DC.retro.vl`
-`|   Product_Version: 10.0.20348`
-`|_  System_Time: 2025-07-06T01:33:23+00:00`
-`| ssl-cert: Subject: commonName=DC.retro.vl`
-`| Not valid before: 2025-04-08T01:55:44`
-`|_Not valid after:  2025-10-08T01:55:44`
-`Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows`
+Host script results:`
+| smb2-security-mode:`
+|   3.1.1:`
+|_    Message signing enabled and required`
+| smb2-time:`
+|   date: 2025-07-06T01:33:26`
+|_  start_date: N/A`
 
-`Host script results:`
-`| smb2-security-mode:`
-`|   3.1.1:`
-`|_    Message signing enabled and required`
-`| smb2-time:`
-`|   date: 2025-07-06T01:33:26`
-`|_  start_date: N/A`
-
-`Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .`
-`Nmap done: 1 IP address (1 host up) scanned in 100.55 seconds`
-`~/hackthebox/Retro >`
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .`
+Nmap done: 1 IP address (1 host up) scanned in 100.55 seconds`
+~/hackthebox/Retro >`
+```
 
 So to answer our question **task 1** DC.retro.vl
 Let's add this to /etc/hosts
