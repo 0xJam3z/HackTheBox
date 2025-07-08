@@ -1,1 +1,1 @@
-Will update later. Just retired machiens writeups.
+Retired machines meant for learning. Some of these boxes we will be using Guided Mode for the sake of step by step solves. This has been integral for my learning and has helped me tremendously (sitting in rank 75 globally as of now and rank 70 for season 8 as of writing.)
