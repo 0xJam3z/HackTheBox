@@ -1,4 +1,4 @@
 
-![Penetration Tester](pt.png)
+![Penetration Tester](/img/pt.png)
 
-My notes for Penetration Tester Job Role Paths from HackTheBox Academy.
+My notes/writeups for modules & boxes from HackTheBox. Hopefully you find some of these useful!
